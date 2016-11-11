@@ -1,8 +1,8 @@
 # coding: utf8
 
-import os
+import time
+import datetime
 import pycurl
-import shutil
 from StringIO import StringIO
 
 
@@ -29,37 +29,30 @@ def get_html(url, user_agent, refer_url):
     return body
 
 
-def save_to_file(d_links, file_name, base_dir):
+def time_now_str(format_str="%Y-%m-%d"):
     """
-    存储下载链接
-    :param d_links:
-    :param file_name:
-    :param base_dir:
-    :return
-    """
-    try:
-        if not d_links:
-            return
-        if not os.path.exists(base_dir):
-            os.mkdir(base_dir)
-        file_object = open('./%s/%s' % (base_dir, file_name), 'w')
-
-        for item in d_links:
-            file_object.write(item)
-            file_object.write('\n')
-        file_object.close()
-    except IOError:
-        print('file not exist!')
-
-
-def remove_dir(dir_name):
-    """
-    删除目录树
-    :param dir_name:
+    获取当天时间
+    :param format_str:
     :return:
     """
-    try:
-        if os.path.exists(dir_name):
-            shutil.rmtree(dir_name)
-    except IOError:
-        print('dir not exist!')
+    return time.strftime(format_str, time.localtime())
+
+
+def datetime_to_str(dt, format_str="%Y-%m-%d"):
+    """
+    datetime转换字符串
+    :param format_str:
+    :param dt:
+    :return:
+    """
+    return dt.strftime(format_str)
+
+
+def get_c_datetime(timedelta=0):
+    """
+    获取当天之后的时间
+    :param timedelta:
+    :return:
+    """
+    date_now = datetime.datetime.now()
+    return date_now + datetime.timedelta(days=timedelta)

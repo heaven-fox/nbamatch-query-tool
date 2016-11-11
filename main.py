@@ -10,5 +10,6 @@ import lib.crawler as cl
 
 if __name__ == '__main__':
     # 测试用例
+    # 当天是否有赛程
     target_team = u"勇士"
-    cl.get_matches(target_team)
+    cl.get_matches(target_team, period=1)

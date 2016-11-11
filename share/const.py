@@ -10,3 +10,11 @@ JSON_MATCH_URL = "http://mat1.gtimg.com/apps/hpage2/nbateammatchlist_%d.json"
 REFER_URL = "http://nba.stats.qq.com/nba"
 USER_AGENT = "Mozilla/5.0(iPad; U; CPU iPhone OS 3_2 like Mac OS X; en-us) AppleWebKit/531.21.10" \
              " (KHTML, like Gecko) Version/4.0.4 Mobile/7B314 Safari/531.21.10"
+
+# 查询范围
+QUERY_PERIOD = {
+    "ALL": 0,             # 全部
+    "DAY": 1,             # 当天
+    "WEEK": 2,            # 今天开始的一周
+    "MONTH": 3            # 今天开始的一个月
+}

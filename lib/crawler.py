@@ -6,10 +6,11 @@ from share import const
 from util.common import *
 
 
-def get_matches(target_team):
+def get_matches(target_team, period=1):
     """
     获取目标球队的比赛日程
     :param target_team: 目标球队
+    :param period: 查询范围(默认查询当天的比赛信息)
     :return:
     """
     team_info = json.load(open(const.DATA_FOLDER + "/" + const.TEAM_FILE))
@@ -25,13 +26,58 @@ def get_matches(target_team):
     m1 = html[12:-1]
     match_info = json.loads(m1)
     match_info = sorted(match_info.iteritems(), key=lambda x: x[0])
-    print("*" * 40)
+    m_day = time_now_str()
+    c_month = time_now_str("%Y-%m")
+    m_c = None
+    if period == const.QUERY_PERIOD["WEEK"]:
+        m_c = datetime_to_str(get_c_datetime(timedelta=7))
+    elif period == const.QUERY_PERIOD["MONTH"]:
+        m_c = datetime_to_str(get_c_datetime(timedelta=30))
+    m_result = list()
+    m_search_times = 0
+    is_finish = False
+    print("*" * 80)
     for matches in match_info:
-        print("比赛月份: " + matches[0].encode("utf8"))
-        print("开始时间\t\t主队\t\t客队")
+        match_month = matches[0].encode("utf8")
+        if cmp(c_month, match_month) > 0:
+            continue
         for a_match in matches[1]:
-            print(a_match["startTime"] + "\t\t" + a_match['rightName'] + "\t\t" + a_match["leftName"])
-    print("*" * 40)
+            match_day = a_match["startTime"][:10]
+            if cmp(m_day, match_day) > 0:
+                continue
+            if period == const.QUERY_PERIOD["ALL"]:
+                m_result.append((a_match["startTime"], a_match['rightName'], a_match["leftName"]))
+            elif period == const.QUERY_PERIOD["DAY"]:
+
+                m_search_times += 1
+                if cmp(m_day, match_day) == 0:
+                    m_result.append((a_match["startTime"], a_match['rightName'], a_match["leftName"]))
+                    break
+                elif cmp(m_day, match_day) < 0:
+                    break
+            elif period in (const.QUERY_PERIOD["WEEK"], const.QUERY_PERIOD["MONTH"]):
+                m_search_times += 1
+                if cmp(m_c, match_day) < 0:
+                    break
+                elif cmp(m_day, match_day) <= 0 and cmp(m_c, match_day) >= 0:
+                    m_result.append((a_match["startTime"], a_match['rightName'], a_match["leftName"]))
+
+        if period == 1:
+            if m_search_times >= 1:
+                is_finish = True
+        elif period in (2, 3):
+            if m_search_times >= 2:
+                is_finish = True
+        if m_result:
+            print("比赛月份: " + matches[0].encode("utf8"))
+            print("开始时间\t\t主队\t\t客队")
+            for a_info in m_result:
+                print(a_info[0] + "\t\t" + a_info[1] + "\t\t" + a_info[2])
+        m_result[:] = list()
+        if is_finish:
+            break
+
+    print("*" * 80)
 
 
 def generate_team_data():
