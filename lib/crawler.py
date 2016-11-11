@@ -1,19 +1,17 @@
 # coding: utf8
 
-import json
-
-from share import const
 from util.common import *
 
 
-def get_matches(target_team, period=1):
+def get_matches(target_team, period=1, is_subscribe=False):
     """
     获取目标球队的比赛日程
     :param target_team: 目标球队
     :param period: 查询范围(默认查询当天的比赛信息)
+    :param is_subscribe: 是否邮件订阅
     :return:
     """
-    team_info = json.load(open(const.DATA_FOLDER + "/" + const.TEAM_FILE))
+    team_info = json.load(open(const.DATA_FOLDER + "/" + const.TEAM_FILE, "r"))
     team_id = 0
     for a_team in team_info:
         if target_team == a_team["name"]:
@@ -36,6 +34,7 @@ def get_matches(target_team, period=1):
     m_result = list()
     m_search_times = 0
     is_finish = False
+    match_data = ""
     print("*" * 80)
     for matches in match_info:
         match_month = matches[0].encode("utf8")
@@ -48,7 +47,6 @@ def get_matches(target_team, period=1):
             if period == const.QUERY_PERIOD["ALL"]:
                 m_result.append((a_match["startTime"], a_match['rightName'], a_match["leftName"]))
             elif period == const.QUERY_PERIOD["DAY"]:
-
                 m_search_times += 1
                 if cmp(m_day, match_day) == 0:
                     m_result.append((a_match["startTime"], a_match['rightName'], a_match["leftName"]))
@@ -62,22 +60,27 @@ def get_matches(target_team, period=1):
                 elif cmp(m_day, match_day) <= 0 and cmp(m_c, match_day) >= 0:
                     m_result.append((a_match["startTime"], a_match['rightName'], a_match["leftName"]))
 
-        if period == 1:
+        if period == const.QUERY_PERIOD["DAY"]:
             if m_search_times >= 1:
                 is_finish = True
-        elif period in (2, 3):
+        elif period in (const.QUERY_PERIOD["WEEK"], const.QUERY_PERIOD["MONTH"]):
             if m_search_times >= 2:
                 is_finish = True
         if m_result:
             print("比赛月份: " + matches[0].encode("utf8"))
             print("开始时间\t\t主队\t\t客队")
+            match_data += "比赛月份: " + matches[0].encode("utf8") + "\n"
+            match_data += "开始时间\t\t主队\t\t客队" + "\n"
             for a_info in m_result:
                 print(a_info[0] + "\t\t" + a_info[1] + "\t\t" + a_info[2])
+                match_data += "\t\t".join(a_info).encode("utf8") + "\n"
         m_result[:] = list()
         if is_finish:
             break
-
     print("*" * 80)
+    # 是否订阅
+    if is_subscribe and match_data:
+        send_mail(match_data)
 
 
 def generate_team_data():

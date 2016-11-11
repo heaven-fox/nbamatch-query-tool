@@ -12,4 +12,4 @@ if __name__ == '__main__':
     # 测试用例
     # 当天是否有赛程
     target_team = u"勇士"
-    cl.get_matches(target_team, period=1)
+    cl.get_matches(target_team, period=1, is_subscribe=True)
